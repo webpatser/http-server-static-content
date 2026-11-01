@@ -115,7 +115,7 @@ final class DocumentRoot implements RequestHandler
     public function handleRequest(Request $request): Response
     {
         $path = $request->getUri()->getPath();
-        if (stripos($path, "%2f") !== false || strpos($path, "%00") !== false) {
+        if (\stripos($path, "%2f") !== false || \str_contains($path, "%00")) {
             return $this->respondFromFileInfo(Internal\FileInformation::fromNonExistentFile($path), $request);
         }
 
@@ -567,7 +567,7 @@ final class DocumentRoot implements RequestHandler
         $mimeFile = \str_replace('\\', '/', $mimeFile);
         $contents = $this->filesystem->read($mimeFile);
 
-        if (!\preg_match_all('#\s*([a-z0-9]+)\s+([a-z0-9\-]+/[a-z0-9\-]+(?:\+[a-z0-9\-]+)?)#i', $contents, $matches)) {
+        if (!\preg_match_all('#\s*([a-z0-9]+)\s+([a-z0-9\-]+/[a-z0-9][a-z0-9.+\-]*)#i', $contents, $matches)) {
             throw new \Exception(
                 "No mime associations found in file: {$mimeFile}"
             );

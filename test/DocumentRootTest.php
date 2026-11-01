@@ -417,4 +417,36 @@ PART;
         $stream = $response->getBody();
         $this->assertSame("<svg></svg>", $stream->read());
     }
+
+    public function testBundledMimeFileIsParsedInFull(): void
+    {
+        $this->root->loadMimeFileTypes(DocumentRoot::DEFAULT_MIME_TYPE_FILE);
+
+        $property = new \ReflectionProperty(DocumentRoot::class, 'mimeFileTypes');
+        $types = $property->getValue($this->root);
+
+        $expected = [];
+        foreach (\file(DocumentRoot::DEFAULT_MIME_TYPE_FILE, \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES) as $line) {
+            $this->assertSame(1, \preg_match('#^\s*(\S+)\s+(\S+)\s*$#', $line, $match), "Malformed line: {$line}");
+            $expected[\strtolower($match[1])] = $match[2];
+        }
+
+        $this->assertNotEmpty($expected);
+        $this->assertSame($expected, $types);
+    }
+
+    public function testDottedPlusAndDashSubtypesAreNotTruncated(): void
+    {
+        $this->root->loadMimeFileTypes(DocumentRoot::DEFAULT_MIME_TYPE_FILE);
+
+        $property = new \ReflectionProperty(DocumentRoot::class, 'mimeFileTypes');
+        $types = $property->getValue($this->root);
+
+        $this->assertSame('application/vnd.ms-excel', $types['xls']);
+        $this->assertSame('image/svg+xml', $types['svg']);
+        $this->assertSame(
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            $types['docx'],
+        );
+    }
 }

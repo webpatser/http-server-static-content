@@ -16,6 +16,7 @@
         "mixed",
         "void",
         "object",
+        "random_bytes",
         "removeDotPathSegments"
     ],
     "php-core-extensions": [
