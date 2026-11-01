@@ -115,7 +115,7 @@ final class DocumentRoot implements RequestHandler
     public function handleRequest(Request $request): Response
     {
         $path = $request->getUri()->getPath();
-        if (stripos($path, "%2f") !== false || strpos($path, "%00") !== false) {
+        if (\stripos($path, "%2f") !== false || \str_contains($path, "%00")) {
             return $this->respondFromFileInfo(Internal\FileInformation::fromNonExistentFile($path), $request);
         }
 
